@@ -19,6 +19,11 @@ Claude outputs/
 # Claude Code per-machine settings.
 .claude/settings.local.json
 
+# --- Branding: the social-preview card and avatar are uploaded to GitHub
+# settings directly, not served from the repo. HTML sources live alongside.
+branding/
+repository-open-graph-template.png
+
 # --- Media never belongs in this repo (footage lives on E:\) -------------
 *.mov
 *.MOV
