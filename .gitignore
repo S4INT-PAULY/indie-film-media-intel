@@ -1,0 +1,43 @@
+# --- Kept private (decided 2026-09-23) -----------------------------------
+# Screenplay: rights stay with the production.
+film-post-prod/10-script/*.pdf
+film-post-prod/10-script/*.fdx
+film-post-prod/10-script/*.xsd
+# Call sheets and the shoot-dates docx list cast/crew contact details.
+# (call-sheet-overrides.csv holds no personal data and IS published.)
+film-post-prod/20-video/call-sheets/*.pdf
+film-post-prod/20-video/call-sheets/*.docx
+
+# --- Local-only working files --------------------------------------------
+# DB backups: git history replaces these.
+film-post-prod/20-video/_archive/
+film-post-prod/30-audio/_archive/
+# Scratch audio from transcription runs.
+film-post-prod/20-video/_scene_stealer_tmp/
+# Loose copies of scripts from chat sessions (the maintained versions live in 01-tools/).
+Claude outputs/
+# Claude Code per-machine settings.
+.claude/settings.local.json
+
+# --- Media never belongs in this repo (footage lives on E:\) -------------
+*.mov
+*.MOV
+*.mp4
+*.MP4
+*.mxf
+*.wav
+*.WAV
+*.thm
+*.THM
+
+# --- Tooling noise --------------------------------------------------------
+*.tmp
+*.bkup
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+Thumbs.db
+desktop.ini
+~$*

@@ -1,0 +1,11 @@
+﻿# MIE deploy manifest -- v2026.09.23-1, recorded 2026-09-23 10:50 by Claude Code
+# Verify: Get-FileHash <file> -Algorithm SHA256, compare. A mismatch means the file changed after this build.
+BE27518709B1FC73CF7AF9E73D9BDD07A72F07ECF84E03AFB3058C2C5405D886  film-post-prod\20-video\media-intel-editor\server.js
+0501C514C6503B81F4430C94DEA3E64E87BE39A51826A78F8E15BBA6B56AE2F9  film-post-prod\20-video\media-intel-editor\public\app.js
+72999245B15E5EC1225FA0BFA0D7CAB20D1952E89DDD40C33F3F8ED096C4E868  film-post-prod\20-video\media-intel-editor\public\index.html
+AA964039DA27FFE391E012D21D47F950D77A2B22F431E4E9B386FCF5C14F4CDA  film-post-prod\20-video\media-intel-editor\public\app.css
+D65141893B0BE207EF3A2BA1F0482DC114734F644577ABA965DCF6B2CBB040BC  film-post-prod\20-video\media-intel-editor\README.md
+A4644286C65E5B12330B8304699FB843E93ABAF1A78B59EAEAC6CFDA8C757B08  film-post-prod\01-tools\README.md
+7A8239FC67920B02916BAD310CA432035CB2C91BC83F4C80F2AF82321D045567  film-post-prod\01-tools\orange_crush_video_intel_scanner.py
+21CCD37D2DA30B69E494689E17ADAADC7C4CCD53CAF98053BD106B02E0C68B9A  film-post-prod\20-video\orange-crush-story-structure.csv
+0C30091B262E3EA7E40A3362C960BDAC3D0C24DECEA423B572DC7A84FEA7DA5E  film-post-prod\20-video\call-sheets\call-sheet-overrides.csv

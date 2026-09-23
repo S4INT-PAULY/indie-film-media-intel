@@ -1,0 +1,20 @@
+Act,Sequence,Start_Scene,Finish_Scene
+ACT I,Sequence A,1,5
+ACT I,Sequence B,6,14
+ACT I,Sequence C,15,22
+ACT I,Sequence D,23,30
+ACT I,Sequence E,31,40
+ACT I,Sequence F,41,49
+ACT I,Sequence G,50,55
+ACT II,Sequence H,56,64
+ACT II,Sequence I,65,73
+ACT II,Sequence J,74,82
+ACT II,Sequence K,83,91
+ACT II,Sequence L,92,100
+ACT II,Sequence M,101,109
+ACT II,Sequence N,110,119
+ACT II,Sequence O,120,124
+ACT II,Sequence P,125,136
+ACT III,Sequence Q,137,140
+ACT III,Sequence R,141,152
+ACT III,Sequence S,153,166

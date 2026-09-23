@@ -1,0 +1,25 @@
+{
+  "project": "Orange Crush",
+  "media_type": "audio",
+  "assets": [
+    {
+      "asset_id": "",
+      "filename": "",
+      "path": "",
+      "scene": "",
+      "take": "",
+      "timecode_in": "",
+      "timecode_out": "",
+      "duration": "",
+      "characters": [],
+      "location": "",
+      "quality": "",
+      "noise": "",
+      "continuity": "",
+      "notes": "",
+      "transcript": "",
+      "select": "",
+      "used_in_edit": false
+    }
+  ]
+}

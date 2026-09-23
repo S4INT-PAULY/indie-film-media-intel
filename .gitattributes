@@ -1,0 +1,4 @@
+# Normalize line endings in the repo; each checkout uses the platform's own.
+* text=auto
+*.pdf binary
+*.docx binary

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Media Intelligence Editor</title>
+<link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">
+    <div id="topbar-title">
+      <strong>Media Intelligence Editor</strong>
+      <span id="project-name"></span>
+      <span id="editor-version" class="version-badge" title="Loading version…">v…</span>
+    </div>
+    <div id="topbar-status">
+      <span id="asset-count"></span>
+      <span id="disk-status" class="hidden"></span>
+      <span id="save-indicator"></span>
+      <button id="reload-btn" title="Reload from disk (picks up rescans, enrichment runs, git pulls)">Reload</button>
+    </div>
+  </header>
+
+  <div id="layout">
+
+    <aside id="sidebar">
+      <div id="search-box">
+        <input id="search-input" type="text" placeholder="Search filename, act, sequence, scene, location, notes, transcript..." />
+      </div>
+
+      <div id="filters">
+        <div class="filter-row">
+          <label>Act</label>
+          <select id="filter-act"><option value="">All acts</option></select>
+        </div>
+        <div class="filter-row">
+          <label>Sequence</label>
+          <select id="filter-sequence"><option value="">All sequences</option></select>
+        </div>
+        <div class="filter-row">
+          <label>Device</label>
+          <select id="filter-device"><option value="">All devices</option></select>
+        </div>
+        <div class="filter-legend"><em>[!] = recovered/cache file, unusual filename, or otherwise unconfirmed -- verify the device before relying on it</em></div>
+        <div class="filter-row">
+          <label>Shoot date</label>
+          <select id="filter-date"><option value="">All dates</option></select>
+        </div>
+        <div class="filter-row">
+          <label>Scene status</label>
+          <select id="filter-scene-status">
+            <option value="">All</option>
+            <option value="unassigned">Scene not yet assigned</option>
+            <option value="assigned">Scene assigned</option>
+            <option value="ambiguous">Multiple candidate scenes</option>
+            <option value="single-candidate">Exactly one candidate scene</option>
+            <option value="no-candidates">No schedule match for this date</option>
+          </select>
+        </div>
+        <div class="filter-row checkbox-row">
+          <label><input type="checkbox" id="filter-used-in-edit" /> Used in edit only</label>
+        </div>
+        <div class="filter-row checkbox-row">
+          <label><input type="checkbox" id="filter-low-confidence" /> Low-confidence device ID only</label>
+        </div>
+        <div class="filter-row checkbox-row">
+          <label><input type="checkbox" id="filter-missing" /> Include missing-on-disk</label>
+        </div>
+        <div class="filter-row checkbox-row">
+          <label><input type="checkbox" id="filter-hide-cr-floor" checked /> Hide CR Floor clips</label>
+        </div>
+        <div class="filter-row">
+          <label>Sort</label>
+          <select id="sort-select">
+            <option value="date-asc">Shoot date (oldest first)</option>
+            <option value="date-desc">Shoot date (newest first)</option>
+            <option value="story">Story order (scene, take)</option>
+            <option value="candidates-desc">Most candidate scenes first</option>
+            <option value="filename">Filename</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="asset-list"></div>
+    </aside>
+
+    <main id="detail">
+      <div id="detail-empty">Select a clip on the left to view and edit it.</div>
+
+      <div id="detail-content" class="hidden">
+
+        <section id="clip-header">
+          <div id="cr-floor-banner" class="hidden">This clip is marked CR FLOOR — cut from the edit.</div>
+          <h2 id="clip-filename"></h2>
+          <div id="clip-meta"></div>
+          <div id="clip-tech"></div>
+          <div id="clip-path-actions">
+            <button id="copy-path-btn" type="button" class="small-btn" title="Copy the full file path to the clipboard">Copy path</button>
+            <button id="reveal-btn" type="button" class="small-btn" title="Open Windows Explorer at this file">Show in Explorer</button>
+            <span id="clip-path-status"></span>
+          </div>
+        </section>
+
+        <section id="clip-preview">
+          <video id="video-player" controls preload="metadata"></video>
+          <audio id="audio-player" class="hidden" controls preload="metadata"></audio>
+          <div id="video-fallback" class="hidden">
+            Preview unavailable for this file (codec/container not supported by the browser, or the drive isn't connected right now).
+            <div id="video-fallback-path" class="path-text"></div>
+          </div>
+        </section>
+
+        <section id="scene-browser">
+          <h3>Scene browser</h3>
+          <div id="scene-day-info"></div>
+          <div id="call-sheet-viewer" class="hidden">
+            <div id="call-sheet-viewer-bar">
+              <span id="call-sheet-viewer-title"></span>
+              <a id="call-sheet-viewer-newtab" href="#" target="_blank" rel="noopener" class="small-btn">Open in new tab</a>
+              <button id="call-sheet-viewer-close" type="button" class="small-btn">Close</button>
+            </div>
+            <iframe id="call-sheet-frame" title="Call sheet"></iframe>
+          </div>
+          <div id="scene-candidates-toggle-row" class="hidden">
+            <button id="scene-candidates-toggle" type="button" class="link-btn"></button>
+          </div>
+          <div id="scene-candidates"></div>
+          <div id="scene-global-search">
+            <input id="scene-search-input" type="text" placeholder="Search all scheduled scenes by number, location, description, character..." />
+            <div id="scene-global-results"></div>
+          </div>
+        </section>
+
+        <section id="asset-editor">
+          <h3>Asset editor</h3>
+          <form id="editor-form">
+            <div class="field-row">
+              <label for="f-act">Act</label>
+              <input id="f-act" type="text" readonly tabindex="-1" class="derived" title="Derived from Scene via orange-crush-story-structure.csv -- set by the server on save, not editable" />
+              <label for="f-sequence">Sequence</label>
+              <input id="f-sequence" type="text" readonly tabindex="-1" class="derived" title="Derived from Scene via orange-crush-story-structure.csv -- set by the server on save, not editable" />
+            </div>
+            <div class="field-row">
+              <label for="f-scene">Scene</label>
+              <input id="f-scene" name="scene" type="text" />
+              <label for="f-take">Take</label>
+              <input id="f-take" name="take" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="f-location">Location</label>
+              <input id="f-location" name="location" type="text" />
+              <label for="f-timecode_out">Timecode out</label>
+              <input id="f-timecode_out" name="timecode_out" type="text" />
+            </div>
+            <div class="field-row">
+              <label for="f-shot_type">Shot type</label>
+              <select id="f-shot_type" name="shot_type"></select>
+              <label for="f-angle">Angle</label>
+              <select id="f-angle" name="angle"></select>
+            </div>
+            <div class="field-row">
+              <label for="f-characters">Characters</label>
+              <input id="f-characters" name="characters" type="text" placeholder="comma-separated: BILLY, AMITA" />
+            </div>
+            <div class="field-row">
+              <label for="f-action">Action</label>
+              <textarea id="f-action" name="action" rows="2"></textarea>
+            </div>
+            <div class="field-row">
+              <label for="f-dialogue">Dialogue</label>
+              <textarea id="f-dialogue" name="dialogue" rows="2"></textarea>
+            </div>
+            <div class="field-row">
+              <label for="f-take_status">Take status</label>
+              <select id="f-take_status" name="take_status"></select>
+              <label for="f-continuity">Continuity</label>
+              <input id="f-continuity" name="continuity" type="text" />
+            </div>
+            <div class="field-row multiselect-row">
+              <label>Quality flags</label>
+              <div id="f-quality_flags-group" class="chip-group"></div>
+            </div>
+            <div class="field-row multiselect-row">
+              <label>Performance flags</label>
+              <div id="f-performance_indicators-group" class="chip-group"></div>
+            </div>
+            <div class="field-row checkbox-row">
+              <label><input id="f-used_in_edit" name="used_in_edit" type="checkbox" /> Used in edit</label>
+            </div>
+            <div class="field-row checkbox-row cr-floor-row">
+              <label class="cr-floor-label"><input id="f-cr_floor" name="cr_floor" type="checkbox" /> <strong>CR Floor</strong> — cut this shot entirely</label>
+              <div class="cr-floor-hint">Nuclear: flags the whole shot as rejected/unusable, everywhere it's shown. Asks you to confirm when you check it. Nothing happens on disk until you click Save changes below.</div>
+            </div>
+            <div class="field-row">
+              <label for="f-notes">Notes</label>
+              <textarea id="f-notes" name="notes" rows="3"></textarea>
+            </div>
+          </form>
+        </section>
+
+        <section id="transcript-viewer">
+          <h3>Transcript</h3>
+          <textarea id="f-transcript" rows="8" placeholder="No transcript yet."></textarea>
+        </section>
+
+        <div id="save-bar">
+          <span id="dirty-indicator"></span>
+          <button id="save-btn">Save changes</button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

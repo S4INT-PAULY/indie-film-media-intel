@@ -1,0 +1,6 @@
+# Pins a call-sheet PDF (in this folder) to a shoot date, for days where neither the
+# filename named in the shoot-dates docx nor the date in a PDF's filename matches --
+# e.g. a day rescheduled after its call sheet was issued. One row per PDF; a date can
+# have several rows. Lines starting with # are ignored. Read by media-intel-editor on
+# every load/Reload.
+Shoot_Date,File

@@ -1,0 +1,87 @@
+# scene-stealer-audio.yaml -- folder-mode run of scene-stealer.py directly
+# over the standalone audio recorder files, as opposed to scene-stealer.yaml
+# which reads clips out of orange-crush-media-intel-db.json.
+#
+# NOTE: since the scanner now catalogs .wav files into
+# orange-crush-media-intel-db.json (kind: "audio") right alongside video,
+# a normal intel_db run of scene-stealer.yaml already transcribes this
+# audio too -- you don't need this file for a routine run anymore. Keep
+# using it when you want to scan the Audio folder directly regardless of
+# what's currently in the DB (e.g. auditing for files the scanner hasn't
+# picked up yet, or a one-off run before the DB is caught up).
+#
+# Run it explicitly with:
+#     python scene-stealer.py --config scene-stealer-audio.yaml
+#
+# Relative paths below are resolved relative to THIS FILE's location, not
+# your current directory.
+
+# ---------------------------------------------------------------------
+# Walk the audio folder directly instead of reading video-media-intel-db.json.
+# ---------------------------------------------------------------------
+source:
+  mode: "folder"
+  root_folder: "E:\\Orange Crush\\Original_Footage\\Audio"
+  extensions: [".wav"]
+  exclude_dir_patterns: ["bkup"]   # case-insensitive; skips any file under a folder whose name contains "bkup"
+                                     # (matches e.g. "bkup", "Bkup", "20221027bkup", "BKUP_2022") -- add more
+                                     # patterns here (e.g. "backup", "old") if other folders should be skipped too
+
+filters:
+  limit: null   # set a small number for a test run first, e.g. 5
+
+# ---------------------------------------------------------------------
+# faster-whisper / CTranslate2 model settings -- same defaults as the
+# video run. See scene-stealer.yaml for what each one does.
+# ---------------------------------------------------------------------
+whisper:
+  model_size: "large-v3-turbo"
+  device: "cuda"
+  compute_type: "float16"
+  device_index: 0
+  cpu_threads: 0
+  num_workers: 1
+  auto_fallback_cpu: true
+  beam_size: 5
+  vad_filter: true
+  vad_min_silence_duration_ms: 500
+  language: null
+  initial_prompt: "Camera rolling. Mark it. Scene 14, Take 2. Action. Characters: Billy, Amita, Uma, Dave, Detective Candy, Amy, Anand, Dilip, Sandeep, Asha, Leena, Justin, Major, A.J., Steve."
+  condition_on_previous_text: true
+  temperature: 0.0
+  word_timestamps: false
+  slate_window_seconds: 8
+
+# ---------------------------------------------------------------------
+# Audio handling. These real .wav files are transcribed directly --
+# scene-stealer.py skips the ffmpeg extraction step entirely for any
+# source file that's already a .wav (see the script header/comments),
+# so ffmpeg_fallback and the temp-wav settings below don't apply to this
+# run at all; they're left in for consistency and in case a non-.wav file
+# ever ends up in this folder.
+# ---------------------------------------------------------------------
+audio:
+  ffmpeg_fallback: true
+  ffmpeg_path: "ffmpeg"
+  ffprobe_path: "ffprobe"
+  skip_no_audio_check: false
+  sample_rate: 16000
+  channels: 1
+  keep_temp_wav: false
+
+# ---------------------------------------------------------------------
+# Output -- a separate file from the video run, so the two never collide.
+# ---------------------------------------------------------------------
+output:
+  path: "../20-video/scene-stealer-transcripts-audio.dsv"
+  delimiter: "|"
+  mode: "overwrite"      # switch to "resume" for later incremental runs once this first pass is reviewed
+  write_json_sidecar: true
+  temp_audio_dir: "../20-video/_scene_stealer_tmp"
+
+# ---------------------------------------------------------------------
+# Logging.
+# ---------------------------------------------------------------------
+logging:
+  level: "INFO"
+  progress_every: 10

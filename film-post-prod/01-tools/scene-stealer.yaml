@@ -1,0 +1,90 @@
+# scene-stealer.yaml -- tunable parameters for scene-stealer.py
+#
+# Every setting here has a built-in default baked into the script, so
+# deleting a line (or the whole file) falls back to a sane default rather
+# than crashing -- edit only what you want to change.
+#
+# Relative paths below are resolved relative to THIS FILE's location, not
+# your current directory, so it's safe to run the script from anywhere.
+
+# ---------------------------------------------------------------------
+# Where to get the list of clips to transcribe from.
+# ---------------------------------------------------------------------
+source:
+  mode: "intel_db"          # "intel_db" (read paths from the media intel JSON) or "folder" (walk a root folder directly)
+  intel_db_path: "../20-video/orange-crush-media-intel-db.json"   # used when mode: intel_db -- one DB, video + audio assets both
+  root_folder: null                                          # used when mode: folder, e.g. "E:\\Orange Crush\\Original_Footage"
+  extensions: [".mp4", ".mov", ".mxf", ".avi", ".m4v"]       # used when mode: folder
+
+# ---------------------------------------------------------------------
+# Which clips to skip. Applied whichever source mode is used (only_devices
+# and only_dates only have anything to match against in intel_db mode).
+#
+# NOTE: since orange-crush-media-intel-db.json now catalogs .wav recorder
+# files alongside video (each asset's "kind" is "video" or "audio"), an
+# intel_db run of this config already picks up the Zoom audio right along
+# with the camera clips -- there's no separate extensions/kind filter here,
+# so a run with default filters transcribes both. scene-stealer-audio.yaml
+# (the folder-mode scan of the Audio folder directly) is no longer needed
+# for a routine run; keep it around only as a folder-mode fallback for
+# auditing files that aren't in the DB yet.
+# ---------------------------------------------------------------------
+filters:
+  skip_missing_on_disk: true   # skip clips the scanner flagged media_intel.missing_on_disk
+  skip_cr_floor: true          # skip clips flagged cr_floor (cutting-room floor) in the editor
+  only_devices: []             # e.g. ["Sony ILCE-7RM3 (4K)"] or ["ZOOM H4n Pro"] -- empty list = all devices
+  only_dates: []                # e.g. ["2022-10-27", "2022-11-04"] -- empty list = all dates
+  limit: null                   # cap how many clips this run processes (handy for a test run) -- null = no cap
+
+# ---------------------------------------------------------------------
+# faster-whisper / CTranslate2 model settings.
+# ---------------------------------------------------------------------
+whisper:
+  model_size: "large-v3-turbo"   # any faster-whisper/CTranslate2 model name or local model path
+  device: "cuda"                  # "cuda" or "cpu"
+  compute_type: "float16"         # float16 recommended on Blackwell (RTX 50-series) GPUs; use "int8" on CPU
+  device_index: 0
+  cpu_threads: 0                   # 0 = let CTranslate2 pick
+  num_workers: 1
+  auto_fallback_cpu: true          # if the GPU model load fails for any reason, retry once on CPU/int8 instead of aborting
+  beam_size: 5
+  vad_filter: true                 # voice-activity detection -- skips silence/room tone instead of transcribing it
+  vad_min_silence_duration_ms: 500
+  language: null                    # null = auto-detect per clip; set e.g. "en" to force and skip language detection
+  initial_prompt: "Camera rolling. Mark it. Scene 14, Take 2. Action. Characters: Billy, Amita, Uma, Dave, Detective Candy, Amy, Anand, Dilip, Sandeep, Asha, Leena, Justin, Major, A.J., Steve."   # optional priming text (character names, slang, "Orange Crush") to bias transcription
+  condition_on_previous_text: true
+  temperature: 0.0
+  word_timestamps: false             # true adds per-word timing to the JSON sidecar (slower, not needed for plain transcripts)
+  slate_window_seconds: 8            # also captured separately as "slate_text" -- the first N seconds, where a spoken slate call usually lands
+
+# ---------------------------------------------------------------------
+# Audio handling. faster-whisper decodes most containers itself (via
+# PyAV) so ffmpeg is only invoked as a fallback if that direct decode
+# fails on a particular file.
+# ---------------------------------------------------------------------
+audio:
+  ffmpeg_fallback: true      # if direct decode fails, extract audio with ffmpeg and retry once
+  ffmpeg_path: "ffmpeg"       # override if ffmpeg isn't on PATH
+  ffprobe_path: "ffprobe"      # used to pre-check whether a clip even has an audio stream (see skip_no_audio_check)
+  skip_no_audio_check: false    # true disables the ffprobe pre-check -- clips with no audio track will then go
+                                  # through the normal decode attempts and land as status=error instead of no_audio
+  sample_rate: 16000
+  channels: 1
+  keep_temp_wav: false         # true = keep ffmpeg-extracted .wav files instead of deleting them after each clip
+
+# ---------------------------------------------------------------------
+# Output.
+# ---------------------------------------------------------------------
+output:
+  path: "../20-video/scene-stealer-transcripts.dsv"   # pipe-delimited output; columns documented in the script header
+  delimiter: "|"
+  mode: "overwrite"                                     # "overwrite" (fresh file each run) or "resume" (append, skipping clips already present)
+  write_json_sidecar: true                               # also write <path>.json with full segment-level timing detail
+  temp_audio_dir: "../20-video/_scene_stealer_tmp"        # only used when the ffmpeg fallback fires
+
+# ---------------------------------------------------------------------
+# Logging.
+# ---------------------------------------------------------------------
+logging:
+  level: "INFO"        # DEBUG / INFO / WARNING / ERROR
+  progress_every: 10     # log a progress/ETA line every N clips (0 = only log at the end)

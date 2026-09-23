@@ -1,0 +1,11 @@
+{
+  "name": "orange-crush-media-intel-editor",
+  "version": "1.0.0",
+  "description": "Tiny local editor for video-media-intel-db.json -- search, filter, browse candidate scenes, and correct scene/take assignments, without ever leaving that file as a normal git-tracked JSON file.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}
