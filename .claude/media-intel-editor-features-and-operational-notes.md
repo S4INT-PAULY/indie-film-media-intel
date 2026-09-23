@@ -81,5 +81,13 @@ In the UI: read-only boxes above Scene, Act and Sequence filters, search, a Stor
 
 This resolves 10 of 11 days. **2023-01-14 (Day 13 Office Redux) has no PDF.** The only candidate, `OC-DAY11-2022-12-17-Office-Redux.pdf`, is dated differently, and it wasn't linked because we don't know it's the same sheet. Waiting on Paul to add an override row if it is. The early-draft, pink and email variants named in references aren't in the folder, except `...CommunityCenter-pink.pdf`.
 
+**Git + GitHub (2026-09-23).** Risk #1's recommendation is done. `C:\orange-crush` is a git repo (branch `main`) pushed to the **public** repo https://github.com/S4INT-PAULY/indie-film-media-intel (MIT).
+- Commits use the repo-local identity `S4INT-PAULY <332992456+S4INT-PAULY@users.noreply.github.com>`. Don't use Paul's Gmail or the mass.gov work account (ehs-ptrainor) for this project.
+- `.gitignore` deliberately keeps these private: the screenplay (`10-script/`), call-sheet PDFs and the shoot-dates docx (cast/crew contact details), `_archive/`, `_scene_stealer_tmp/`, `Claude outputs/` and all media. Don't publish them without asking.
+- `core.autocrlf=false` (repo-local).
+- Git for Windows was installed via winget. Claude Code's shell sets `GCM_INTERACTIVE=never`, so the first push needed `$env:GCM_INTERACTIVE='always'`. Credentials are cached now.
+
+If a file is mysteriously reverted again, `git status` / `git diff` shows it and `git restore <file>` undoes it.
+
 **Open:** no act/sequence for clips without a scene (would need an override design). `scene-stealer.py` reads the persisted `missing_on_disk` flag.
 
